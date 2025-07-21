@@ -185,11 +185,11 @@ def display_final_confirmation():
         st.balloons()
         st.success(f"Sale completed! €{total:.0f}")
         
-        # Auto-reset for next customer
+        # Auto-reset for next customer but keep event selected
         import time
         time.sleep(1)
         reset_cart()
-        st.session_state.selected_event = None
+        # Keep the selected event for next customer
         st.rerun()
     
     # Small action buttons below
@@ -197,7 +197,7 @@ def display_final_confirmation():
     with col1:
         if st.button("🔄 New Order", use_container_width=True):
             reset_cart()
-            st.session_state.selected_event = None
+            # Keep the event selected for next customer
             st.rerun()
     
     with col2:

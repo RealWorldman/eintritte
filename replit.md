@@ -120,3 +120,15 @@ Preferred communication style: Simple, everyday language.
 - Admin dashboard for event and ticket management
 - Email confirmation and ticket generation
 - Inventory management and sold-out handling
+
+## Recent Changes
+
+### July 21, 2025
+- **Compact Interface Design**: Redesigned all UI elements for faster entry at event gates
+  - Changed ticket selection to + and - buttons for quicker entry
+  - Converted event selection to horizontal button layout
+  - Simplified order summary to single line with total
+  - Made payment methods clickable buttons in horizontal layout
+  - Added large "COMPLETE SALE" button for quick checkout
+- **Persistent Event Selection**: Event choice now persists between sales to avoid reselection
+- **Auto-Reset Optimization**: Cart clears after each sale but keeps event selected for next customer
