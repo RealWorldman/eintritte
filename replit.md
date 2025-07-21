@@ -132,3 +132,4 @@ Preferred communication style: Simple, everyday language.
   - Added large "COMPLETE SALE" button for quick checkout
 - **Persistent Event Selection**: Event choice now persists between sales to avoid reselection
 - **Auto-Reset Optimization**: Cart clears after each sale but keeps event selected for next customer
+- **Google Sheets Integration**: All sales data automatically saved to Google Sheets with timestamp, event details, ticket quantities, total amount, and payment method

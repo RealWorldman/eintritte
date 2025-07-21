@@ -1,6 +1,9 @@
 import streamlit as st
 import os
 from datetime import datetime
+import gspread
+from google.oauth2.service_account import Credentials
+import json
 
 # Page configuration
 st.set_page_config(
@@ -22,6 +25,68 @@ if 'payment_method' not in st.session_state:
 
 # Configuration
 PASSWORD = os.getenv("APP_PASSWORD", "sportsclub2024")
+
+# Google Sheets configuration
+@st.cache_resource
+def init_google_sheets():
+    """Initialize Google Sheets connection"""
+    try:
+        # Get Google Sheets credentials from environment
+        creds_json = os.getenv("GOOGLE_SHEETS_CREDENTIALS")
+        sheet_url = os.getenv("GOOGLE_SHEETS_URL")
+        
+        if not creds_json or not sheet_url:
+            return None, None
+            
+        # Parse credentials
+        creds_dict = json.loads(creds_json)
+        creds = Credentials.from_service_account_info(
+            creds_dict,
+            scopes=['https://www.googleapis.com/auth/spreadsheets']
+        )
+        
+        # Initialize client and open sheet
+        client = gspread.authorize(creds)
+        sheet = client.open_by_url(sheet_url).sheet1
+        
+        # Set up headers if sheet is empty
+        if not sheet.get_all_values():
+            headers = ['Date', 'Time', 'Event', 'Kids', 'Young Adults', 'Adults', 'Seniors', 'Total Amount', 'Payment Method']
+            sheet.append_row(headers)
+        
+        return client, sheet
+    except Exception as e:
+        st.error(f"Google Sheets connection failed: {str(e)}")
+        return None, None
+
+def save_to_google_sheets(sheet, event, cart, total, payment_method):
+    """Save sale data to Google Sheets"""
+    if not sheet:
+        return False
+        
+    try:
+        now = datetime.now()
+        date_str = now.strftime('%Y-%m-%d')
+        time_str = now.strftime('%H:%M:%S')
+        
+        # Prepare row data
+        row_data = [
+            date_str,
+            time_str,
+            EVENTS[event],
+            cart.get('kids', 0),
+            cart.get('young_adults', 0),
+            cart.get('adults', 0),
+            cart.get('seniors', 0),
+            f"€{total:.2f}",
+            payment_method
+        ]
+        
+        sheet.append_row(row_data)
+        return True
+    except Exception as e:
+        st.error(f"Failed to save to Google Sheets: {str(e)}")
+        return False
 
 # Event and ticket configuration
 EVENTS = {
@@ -283,8 +348,20 @@ def display_final_confirmation():
     # Large complete sale button
     if st.button("✅ COMPLETE SALE", use_container_width=True, type="primary"):
         total = calculate_total()
-        st.balloons()
-        st.success(f"Sale completed! €{total:.0f}")
+        
+        # Initialize Google Sheets
+        client, sheet = init_google_sheets()
+        
+        # Save to Google Sheets
+        if sheet:
+            success = save_to_google_sheets(sheet, st.session_state.selected_event, st.session_state.cart, total, st.session_state.payment_method)
+            if success:
+                st.balloons()
+                st.success(f"Sale completed! €{total:.0f} - Saved to Google Sheets")
+            else:
+                st.warning(f"Sale completed! €{total:.0f} - Google Sheets save failed")
+        else:
+            st.info(f"Sale completed! €{total:.0f} - Google Sheets not configured")
         
         # Auto-reset for next customer but keep event selected
         import time
