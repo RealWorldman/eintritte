@@ -80,12 +80,49 @@ def display_event_selection():
     """Display event selection interface"""
     st.markdown("**Event:**")
     
-    # Compact event buttons
-    cols = st.columns(len(EVENTS))
+    # 2x2 grid for event buttons
     event_items = list(EVENTS.items())
     
-    for i, (event_key, event_name) in enumerate(event_items):
-        with cols[i]:
+    # First row
+    col1, col2 = st.columns(2)
+    with col1:
+        if len(event_items) >= 1:
+            event_key, event_name = event_items[0]
+            if st.button(event_name.replace(' Event', '').replace(' Day', ''), 
+                        key=f"event_{event_key}", 
+                        use_container_width=True):
+                if event_key != st.session_state.selected_event:
+                    st.session_state.selected_event = event_key
+                    reset_cart()
+                    st.rerun()
+    
+    with col2:
+        if len(event_items) >= 2:
+            event_key, event_name = event_items[1]
+            if st.button(event_name.replace(' Event', '').replace(' Day', ''), 
+                        key=f"event_{event_key}", 
+                        use_container_width=True):
+                if event_key != st.session_state.selected_event:
+                    st.session_state.selected_event = event_key
+                    reset_cart()
+                    st.rerun()
+    
+    # Second row
+    col3, col4 = st.columns(2)
+    with col3:
+        if len(event_items) >= 3:
+            event_key, event_name = event_items[2]
+            if st.button(event_name.replace(' Event', '').replace(' Day', ''), 
+                        key=f"event_{event_key}", 
+                        use_container_width=True):
+                if event_key != st.session_state.selected_event:
+                    st.session_state.selected_event = event_key
+                    reset_cart()
+                    st.rerun()
+    
+    with col4:
+        if len(event_items) >= 4:
+            event_key, event_name = event_items[3]
             if st.button(event_name.replace(' Event', '').replace(' Day', ''), 
                         key=f"event_{event_key}", 
                         use_container_width=True):
@@ -104,28 +141,92 @@ def display_ticket_selection():
         
     st.markdown("## 🎫 Tickets")
     
-    # Compact horizontal layout for all tickets
-    cols = st.columns(len(TICKET_TYPES))
+    # 2x2 grid for ticket selection
+    ticket_items = list(TICKET_TYPES.items())
     
-    for i, (ticket_key, ticket_info) in enumerate(TICKET_TYPES.items()):
-        with cols[i]:
+    # First row
+    col1, col2 = st.columns(2)
+    with col1:
+        if len(ticket_items) >= 1:
+            ticket_key, ticket_info = ticket_items[0]
             st.markdown(f"**{ticket_info['name'].split('(')[0].strip()}**")
             st.markdown(f"€{ticket_info['price']:.0f}")
             
             current_qty = st.session_state.cart.get(ticket_key, 0)
             
-            # Use + and - buttons for faster entry
             col_minus, col_qty, col_plus = st.columns([1, 2, 1])
-            
             with col_minus:
                 if st.button("−", key=f"minus_{ticket_key}", use_container_width=True):
                     if current_qty > 0:
                         st.session_state.cart[ticket_key] = current_qty - 1
                         st.rerun()
-            
             with col_qty:
                 st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; padding: 8px;'>{current_qty}</div>", unsafe_allow_html=True)
+            with col_plus:
+                if st.button("+", key=f"plus_{ticket_key}", use_container_width=True):
+                    st.session_state.cart[ticket_key] = current_qty + 1
+                    st.rerun()
+    
+    with col2:
+        if len(ticket_items) >= 2:
+            ticket_key, ticket_info = ticket_items[1]
+            st.markdown(f"**{ticket_info['name'].split('(')[0].strip()}**")
+            st.markdown(f"€{ticket_info['price']:.0f}")
             
+            current_qty = st.session_state.cart.get(ticket_key, 0)
+            
+            col_minus, col_qty, col_plus = st.columns([1, 2, 1])
+            with col_minus:
+                if st.button("−", key=f"minus_{ticket_key}", use_container_width=True):
+                    if current_qty > 0:
+                        st.session_state.cart[ticket_key] = current_qty - 1
+                        st.rerun()
+            with col_qty:
+                st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; padding: 8px;'>{current_qty}</div>", unsafe_allow_html=True)
+            with col_plus:
+                if st.button("+", key=f"plus_{ticket_key}", use_container_width=True):
+                    st.session_state.cart[ticket_key] = current_qty + 1
+                    st.rerun()
+    
+    # Second row
+    col3, col4 = st.columns(2)
+    with col3:
+        if len(ticket_items) >= 3:
+            ticket_key, ticket_info = ticket_items[2]
+            st.markdown(f"**{ticket_info['name'].split('(')[0].strip()}**")
+            st.markdown(f"€{ticket_info['price']:.0f}")
+            
+            current_qty = st.session_state.cart.get(ticket_key, 0)
+            
+            col_minus, col_qty, col_plus = st.columns([1, 2, 1])
+            with col_minus:
+                if st.button("−", key=f"minus_{ticket_key}", use_container_width=True):
+                    if current_qty > 0:
+                        st.session_state.cart[ticket_key] = current_qty - 1
+                        st.rerun()
+            with col_qty:
+                st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; padding: 8px;'>{current_qty}</div>", unsafe_allow_html=True)
+            with col_plus:
+                if st.button("+", key=f"plus_{ticket_key}", use_container_width=True):
+                    st.session_state.cart[ticket_key] = current_qty + 1
+                    st.rerun()
+    
+    with col4:
+        if len(ticket_items) >= 4:
+            ticket_key, ticket_info = ticket_items[3]
+            st.markdown(f"**{ticket_info['name'].split('(')[0].strip()}**")
+            st.markdown(f"€{ticket_info['price']:.0f}")
+            
+            current_qty = st.session_state.cart.get(ticket_key, 0)
+            
+            col_minus, col_qty, col_plus = st.columns([1, 2, 1])
+            with col_minus:
+                if st.button("−", key=f"minus_{ticket_key}", use_container_width=True):
+                    if current_qty > 0:
+                        st.session_state.cart[ticket_key] = current_qty - 1
+                        st.rerun()
+            with col_qty:
+                st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; padding: 8px;'>{current_qty}</div>", unsafe_allow_html=True)
             with col_plus:
                 if st.button("+", key=f"plus_{ticket_key}", use_container_width=True):
                     st.session_state.cart[ticket_key] = current_qty + 1
