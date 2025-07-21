@@ -78,92 +78,77 @@ def calculate_total():
 
 def display_event_selection():
     """Display event selection interface"""
-    st.markdown("## 📅 Select Event")
+    st.markdown("**Event:**")
     
-    event_options = list(EVENTS.keys())
-    selected_event = st.selectbox(
-        "Choose the event:",
-        event_options,
-        format_func=lambda x: EVENTS[x],
-        key="event_selector"
-    )
+    # Compact event buttons
+    cols = st.columns(len(EVENTS))
+    event_items = list(EVENTS.items())
     
-    if selected_event != st.session_state.selected_event:
-        st.session_state.selected_event = selected_event
-        reset_cart()  # Clear cart when switching events
-        st.rerun()
+    for i, (event_key, event_name) in enumerate(event_items):
+        with cols[i]:
+            if st.button(event_name.replace(' Event', '').replace(' Day', ''), 
+                        key=f"event_{event_key}", 
+                        use_container_width=True):
+                if event_key != st.session_state.selected_event:
+                    st.session_state.selected_event = event_key
+                    reset_cart()
+                    st.rerun()
     
     if st.session_state.selected_event:
-        st.success(f"📍 Event: **{EVENTS[st.session_state.selected_event]}**")
+        st.info(f"Event: {EVENTS[st.session_state.selected_event]}")
 
 def display_ticket_selection():
     """Display ticket selection interface"""
     if not st.session_state.selected_event:
         return
         
-    st.markdown("## 🎫 Select Tickets")
+    st.markdown("## 🎫 Tickets")
     
-    # Create columns for better mobile layout
-    col1, col2 = st.columns(2)
+    # Compact horizontal layout for all tickets
+    cols = st.columns(len(TICKET_TYPES))
     
-    with col1:
-        for i, (ticket_key, ticket_info) in enumerate(list(TICKET_TYPES.items())[:2]):
-            st.markdown(f"**{ticket_info['name']}**")
-            st.markdown(f"💰 €{ticket_info['price']:.2f}")
+    for i, (ticket_key, ticket_info) in enumerate(TICKET_TYPES.items()):
+        with cols[i]:
+            st.markdown(f"**{ticket_info['name'].split('(')[0].strip()}**")
+            st.markdown(f"€{ticket_info['price']:.0f}")
             
             current_qty = st.session_state.cart.get(ticket_key, 0)
-            quantity = st.number_input(
-                "Quantity:",
-                min_value=0,
-                max_value=50,
-                value=current_qty,
-                step=1,
-                key=f"qty_{ticket_key}",
-                label_visibility="collapsed"
-            )
-            st.session_state.cart[ticket_key] = quantity
-            st.markdown("---")
-    
-    with col2:
-        for i, (ticket_key, ticket_info) in enumerate(list(TICKET_TYPES.items())[2:]):
-            st.markdown(f"**{ticket_info['name']}**")
-            st.markdown(f"💰 €{ticket_info['price']:.2f}")
             
-            current_qty = st.session_state.cart.get(ticket_key, 0)
-            quantity = st.number_input(
-                "Quantity:",
-                min_value=0,
-                max_value=50,
-                value=current_qty,
-                step=1,
-                key=f"qty_{ticket_key}",
-                label_visibility="collapsed"
-            )
-            st.session_state.cart[ticket_key] = quantity
-            st.markdown("---")
+            # Use + and - buttons for faster entry
+            col_minus, col_qty, col_plus = st.columns([1, 2, 1])
+            
+            with col_minus:
+                if st.button("−", key=f"minus_{ticket_key}", use_container_width=True):
+                    if current_qty > 0:
+                        st.session_state.cart[ticket_key] = current_qty - 1
+                        st.rerun()
+            
+            with col_qty:
+                st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; padding: 8px;'>{current_qty}</div>", unsafe_allow_html=True)
+            
+            with col_plus:
+                if st.button("+", key=f"plus_{ticket_key}", use_container_width=True):
+                    st.session_state.cart[ticket_key] = current_qty + 1
+                    st.rerun()
 
 def display_cart_summary():
     """Display cart summary and total"""
     total = calculate_total()
     
     if total > 0:
-        st.markdown("## 🛒 Order Summary")
-        
-        # Display selected tickets
+        # Compact summary in single line format
+        summary_parts = []
         for ticket_type, quantity in st.session_state.cart.items():
             if quantity > 0:
-                ticket_info = TICKET_TYPES[ticket_type]
-                subtotal = ticket_info["price"] * quantity
-                st.markdown(
-                    f"**{ticket_info['name']}** × {quantity} = €{subtotal:.2f}"
-                )
+                ticket_name = TICKET_TYPES[ticket_type]["name"].split('(')[0].strip()
+                summary_parts.append(f"{ticket_name}: {quantity}")
         
-        st.markdown("---")
-        st.markdown(f"## 💰 **Total: €{total:.2f}**")
+        if summary_parts:
+            st.markdown(f"**Items:** {' | '.join(summary_parts)}")
+            st.markdown(f"# **€{total:.0f}**")
         
         return True
     else:
-        st.info("🛒 No tickets selected yet")
         return False
 
 def display_payment_selection():
@@ -171,67 +156,53 @@ def display_payment_selection():
     if calculate_total() <= 0:
         return False
         
-    st.markdown("## 💳 Select Payment Method")
+    st.markdown("**Payment:**")
     
-    payment_method = st.radio(
-        "How will the customer pay?",
-        PAYMENT_METHODS,
-        key="payment_selector"
-    )
+    # Compact button layout for payment methods
+    cols = st.columns(len(PAYMENT_METHODS))
     
-    st.session_state.payment_method = payment_method
-    return True
+    for i, method in enumerate(PAYMENT_METHODS):
+        with cols[i]:
+            method_name = method.split(' ', 1)[1]  # Remove emoji for button text
+            if st.button(method_name, key=f"pay_{i}", use_container_width=True):
+                st.session_state.payment_method = method
+                st.rerun()
+    
+    if st.session_state.payment_method:
+        st.success(f"Payment: {st.session_state.payment_method}")
+        return True
+    
+    return False
 
 def display_final_confirmation():
     """Display final confirmation and completion"""
     if not st.session_state.payment_method or calculate_total() <= 0:
         return
         
-    st.markdown("## ✅ Ready to Complete")
-    
-    # Final summary in a nice format
-    with st.container():
-        st.markdown("### 📋 Final Order Details")
-        st.markdown(f"**Event:** {EVENTS[st.session_state.selected_event]}")
-        st.markdown(f"**Payment Method:** {st.session_state.payment_method}")
-        st.markdown("**Tickets:**")
-        
-        for ticket_type, quantity in st.session_state.cart.items():
-            if quantity > 0:
-                ticket_info = TICKET_TYPES[ticket_type]
-                subtotal = ticket_info["price"] * quantity
-                st.markdown(f"- {ticket_info['name']} × {quantity} = €{subtotal:.2f}")
-        
+    # Large complete sale button
+    if st.button("✅ COMPLETE SALE", use_container_width=True, type="primary"):
         total = calculate_total()
-        st.markdown(f"### 💰 **Total Amount: €{total:.2f}**")
+        st.balloons()
+        st.success(f"Sale completed! €{total:.0f}")
+        
+        # Auto-reset for next customer
+        import time
+        time.sleep(1)
+        reset_cart()
+        st.session_state.selected_event = None
+        st.rerun()
     
-    # Action buttons
-    col1, col2, col3 = st.columns(3)
-    
+    # Small action buttons below
+    col1, col2 = st.columns(2)
     with col1:
-        if st.button("🔄 Start New Order", use_container_width=True):
+        if st.button("🔄 New Order", use_container_width=True):
             reset_cart()
             st.session_state.selected_event = None
             st.rerun()
     
     with col2:
-        if st.button("✏️ Modify Order", use_container_width=True):
+        if st.button("✏️ Edit", use_container_width=True):
             st.session_state.payment_method = None
-            st.rerun()
-    
-    with col3:
-        if st.button("✅ Complete Sale", use_container_width=True, type="primary"):
-            # Here you would normally save the transaction to a database
-            # For now, we'll show a success message and reset
-            st.balloons()
-            st.success(f"🎉 Sale completed! Total: €{total:.2f}")
-            st.info("💾 Transaction recorded successfully")
-            
-            # Auto-reset after a few seconds
-            import time
-            time.sleep(2)
-            reset_cart()
-            st.session_state.selected_event = None
             st.rerun()
 
 def main():
