@@ -32,14 +32,15 @@ def init_google_sheets():
     """Initialize Google Sheets connection"""
     try:
         # Get Google Sheets credentials from environment
-        creds_json = os.getenv("GOOGLE_SHEETS_CREDENTIALS")
+        creds_path = os.getenv("GOOGLE_SHEETS_CREDENTIALS")
         sheet_url = os.getenv("GOOGLE_SHEETS_URL")
         
-        if not creds_json or not sheet_url:
+        if not creds_path or not sheet_url:
             return None, None
             
         # Parse credentials
-        creds_dict = json.loads(creds_json)
+        with open(creds_path, "r") as f:
+            creds_dict = json.load(f)
         creds = Credentials.from_service_account_info(
             creds_dict,
             scopes=['https://www.googleapis.com/auth/spreadsheets']
@@ -350,7 +351,11 @@ def display_final_confirmation():
         total = calculate_total()
         
         # Initialize Google Sheets
-        client, sheet = init_google_sheets()
+        try:
+            client, sheet = init_google_sheets()
+        except Exception as e:
+            st.error(f"Failed to initialize Google Sheets: {str(e)}")
+            client, sheet = None, None
         
         # Save to Google Sheets
         if sheet:
