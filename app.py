@@ -91,25 +91,21 @@ def save_to_google_sheets(sheet, event, cart, total, payment_method):
 
 # Event and ticket configuration
 EVENTS = {
-    "Friday-Day": "Friday Day Event",
-    "Saturday-Event": "Saturday Main Event", 
-    "Sunday-Family": "Sunday Family Day",
-    "VIP-Experience": "VIP Experience Package"
+    "Freitag": "Freitag",
+    "Samstag": "Samstag"
 }
 
 TICKET_TYPES = {
-    "kids": {"name": "Kids (Under 12)", "price": 8.00},
-    "young_adults": {"name": "Young Adults (12-17)", "price": 12.00},
-    "adults": {"name": "Adults (18+)", "price": 18.00},
-    "seniors": {"name": "Seniors (65+)", "price": 15.00}
+    "Kinder 0-5": {"name": "Kleinkinder (unter 12)", "price": 0.00},
+    "Kinder 6-15": {"name": "Kinder (12-15)", "price": 6.00},
+    "Jugendliche 16-17": {"name": "Jugendliche (16-17)", "price": 12.00},
+    "Erwachsene 18+": {"name": "Erwachsene (18+)", "price": 12.00}
 }
 
 PAYMENT_METHODS = [
-    "💳 Credit Card",
-    "💰 Cash", 
-    "📱 Mobile Payment",
-    "🏦 Bank Transfer",
-    "🎫 Voucher"
+    "💳 Karte",
+    "💰 Bar",
+    "📱 Twint"
 ]
 
 def authenticate():
@@ -150,7 +146,8 @@ def display_event_selection():
     event_items = list(EVENTS.items())
     
     # First row
-    col1, col2 = st.columns(2)
+    # col1, col2 = st.columns(2)
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         if len(event_items) >= 1:
             event_key, event_name = event_items[0]
@@ -174,7 +171,7 @@ def display_event_selection():
                     st.rerun()
     
     # Second row
-    col3, col4 = st.columns(2)
+    # col3, col4 = st.columns(2)
     with col3:
         if len(event_items) >= 3:
             event_key, event_name = event_items[2]
@@ -222,14 +219,14 @@ def display_ticket_selection():
             
             col_minus, col_qty, col_plus = st.columns([1, 2, 1])
             with col_minus:
-                if st.button("−", key=f"minus_{ticket_key}", use_container_width=True):
+                if st.button("−1", key=f"minus_{ticket_key}", use_container_width=True):
                     if current_qty > 0:
                         st.session_state.cart[ticket_key] = current_qty - 1
                         st.rerun()
             with col_qty:
                 st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; padding: 8px;'>{current_qty}</div>", unsafe_allow_html=True)
             with col_plus:
-                if st.button("+", key=f"plus_{ticket_key}", use_container_width=True):
+                if st.button("+1", key=f"plus_{ticket_key}", use_container_width=True):
                     st.session_state.cart[ticket_key] = current_qty + 1
                     st.rerun()
     
@@ -243,14 +240,14 @@ def display_ticket_selection():
             
             col_minus, col_qty, col_plus = st.columns([1, 2, 1])
             with col_minus:
-                if st.button("−", key=f"minus_{ticket_key}", use_container_width=True):
+                if st.button("−1", key=f"minus_{ticket_key}", use_container_width=True):
                     if current_qty > 0:
                         st.session_state.cart[ticket_key] = current_qty - 1
                         st.rerun()
             with col_qty:
                 st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; padding: 8px;'>{current_qty}</div>", unsafe_allow_html=True)
             with col_plus:
-                if st.button("+", key=f"plus_{ticket_key}", use_container_width=True):
+                if st.button("+1", key=f"plus_{ticket_key}", use_container_width=True):
                     st.session_state.cart[ticket_key] = current_qty + 1
                     st.rerun()
     
@@ -266,14 +263,14 @@ def display_ticket_selection():
             
             col_minus, col_qty, col_plus = st.columns([1, 2, 1])
             with col_minus:
-                if st.button("−", key=f"minus_{ticket_key}", use_container_width=True):
+                if st.button("−1", key=f"minus_{ticket_key}", use_container_width=True):
                     if current_qty > 0:
                         st.session_state.cart[ticket_key] = current_qty - 1
                         st.rerun()
             with col_qty:
                 st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; padding: 8px;'>{current_qty}</div>", unsafe_allow_html=True)
             with col_plus:
-                if st.button("+", key=f"plus_{ticket_key}", use_container_width=True):
+                if st.button("+1", key=f"plus_{ticket_key}", use_container_width=True):
                     st.session_state.cart[ticket_key] = current_qty + 1
                     st.rerun()
     
@@ -287,14 +284,14 @@ def display_ticket_selection():
             
             col_minus, col_qty, col_plus = st.columns([1, 2, 1])
             with col_minus:
-                if st.button("−", key=f"minus_{ticket_key}", use_container_width=True):
+                if st.button("−1", key=f"minus_{ticket_key}", use_container_width=True):
                     if current_qty > 0:
                         st.session_state.cart[ticket_key] = current_qty - 1
                         st.rerun()
             with col_qty:
                 st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; padding: 8px;'>{current_qty}</div>", unsafe_allow_html=True)
             with col_plus:
-                if st.button("+", key=f"plus_{ticket_key}", use_container_width=True):
+                if st.button("+1", key=f"plus_{ticket_key}", use_container_width=True):
                     st.session_state.cart[ticket_key] = current_qty + 1
                     st.rerun()
 
