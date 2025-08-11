@@ -24,7 +24,7 @@ if 'payment_method' not in st.session_state:
     st.session_state.payment_method = None
 
 # Configuration
-PASSWORD = os.getenv("APP_PASSWORD", "sportsclub2024")
+PASSWORD = st.secrets["APP_PASSWORD"]
 
 # Google Sheets configuration
 @st.cache_resource
