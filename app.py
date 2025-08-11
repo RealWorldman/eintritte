@@ -32,15 +32,12 @@ def init_google_sheets():
     """Initialize Google Sheets connection"""
     try:
         # Get Google Sheets credentials from environment
-        creds_path = os.getenv("GOOGLE_SHEETS_CREDENTIALS")
-        sheet_url = os.getenv("GOOGLE_SHEETS_URL")
+        creds_dict = st.secrets["GOOGLE_SHEETS_CREDENTIALS"]
+        sheet_url = st.secrets["GOOGLE_SHEETS_URL"]
         
-        if not creds_path or not sheet_url:
+        if not creds_dict or not sheet_url:
             return None, None
-            
-        # Parse credentials
-        with open(creds_path, "r") as f:
-            creds_dict = json.load(f)
+
         creds = Credentials.from_service_account_info(
             creds_dict,
             scopes=['https://www.googleapis.com/auth/spreadsheets']
@@ -52,7 +49,7 @@ def init_google_sheets():
         
         # Set up headers if sheet is empty
         if not sheet.get_all_values():
-            headers = ['Date', 'Time', 'Event', 'Kids', 'Young Adults', 'Adults', 'Seniors', 'Total Amount', 'Payment Method']
+            headers = ['Date', 'Time', 'Event', 'Kleinkind', 'Kind', 'Teen', 'Erwachsen', 'Total Amount', 'Payment Method']
             sheet.append_row(headers)
         
         return client, sheet
@@ -75,10 +72,10 @@ def save_to_google_sheets(sheet, event, cart, total, payment_method):
             date_str,
             time_str,
             EVENTS[event],
-            cart.get('kids', 0),
-            cart.get('young_adults', 0),
-            cart.get('adults', 0),
-            cart.get('seniors', 0),
+            cart.get('kleinkind', 0),
+            cart.get('kind', 0),
+            cart.get('teen', 0),
+            cart.get('erwachsen', 0),
             f"€{total:.2f}",
             payment_method
         ]
@@ -96,10 +93,10 @@ EVENTS = {
 }
 
 TICKET_TYPES = {
-    "Kinder 0-5": {"name": "Kleinkinder (unter 12)", "price": 0.00},
-    "Kinder 6-15": {"name": "Kinder (12-15)", "price": 6.00},
-    "Jugendliche 16-17": {"name": "Jugendliche (16-17)", "price": 12.00},
-    "Erwachsene 18+": {"name": "Erwachsene (18+)", "price": 12.00}
+    "kleinkind": {"name": "Kleinkinder (unter 6)", "price": 0.00},
+    "kind": {"name": "Kinder (6-15)", "price": 6.00},
+    "teen": {"name": "Jugendliche (16-17)", "price": 12.00},
+    "erwachsen": {"name": "Erwachsene (18+)", "price": 12.00}
 }
 
 PAYMENT_METHODS = [
