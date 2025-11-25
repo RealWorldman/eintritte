@@ -7,7 +7,7 @@ import json
 
 # Page configuration
 st.set_page_config(
-    page_title="Sports Club Ticket Sales",
+    page_title="TVD Chränzli Eintritte",
     page_icon="🎟️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -76,7 +76,7 @@ def save_to_google_sheets(sheet, event, cart, total, payment_method):
             cart.get('kind', 0),
             cart.get('teen', 0),
             cart.get('erwachsen', 0),
-            f"€{total:.2f}",
+            f"CHF {total:.2f}",
             payment_method
         ]
         
@@ -107,7 +107,7 @@ PAYMENT_METHODS = [
 
 def authenticate():
     """Handle password authentication"""
-    st.title("🏆 Sports Club Event Tickets")
+    st.title("🏆 TVD Chränzli Eintritte")
     st.markdown("### Please enter the access password")
     
     password_input = st.text_input("Password", type="password", key="password_input")
@@ -143,8 +143,8 @@ def display_event_selection():
     event_items = list(EVENTS.items())
     
     # First row
-    # col1, col2 = st.columns(2)
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2 = st.columns(2)
+    # col1, col2, col3, col4 = st.columns(4)
     with col1:
         if len(event_items) >= 1:
             event_key, event_name = event_items[0]
@@ -168,7 +168,7 @@ def display_event_selection():
                     st.rerun()
     
     # Second row
-    # col3, col4 = st.columns(2)
+    col3, col4 = st.columns(2)
     with col3:
         if len(event_items) >= 3:
             event_key, event_name = event_items[2]
@@ -205,12 +205,13 @@ def display_ticket_selection():
     ticket_items = list(TICKET_TYPES.items())
     
     # First row
-    col1, col2 = st.columns(2)
+    # col1, col2 = st.columns(2)
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         if len(ticket_items) >= 1:
             ticket_key, ticket_info = ticket_items[0]
             st.markdown(f"**{ticket_info['name'].split('(')[0].strip()}**")
-            st.markdown(f"€{ticket_info['price']:.0f}")
+            st.markdown(f"CHF {ticket_info['price']:.0f}")
             
             current_qty = st.session_state.cart.get(ticket_key, 0)
             
@@ -231,11 +232,11 @@ def display_ticket_selection():
         if len(ticket_items) >= 2:
             ticket_key, ticket_info = ticket_items[1]
             st.markdown(f"**{ticket_info['name'].split('(')[0].strip()}**")
-            st.markdown(f"€{ticket_info['price']:.0f}")
+            st.markdown(f"CHF {ticket_info['price']:.0f}")
             
             current_qty = st.session_state.cart.get(ticket_key, 0)
             
-            col_minus, col_qty, col_plus = st.columns([1, 2, 1])
+            col_minus, col_qty, col_plus = st.columns(3)
             with col_minus:
                 if st.button("−1", key=f"minus_{ticket_key}", use_container_width=True):
                     if current_qty > 0:
@@ -249,12 +250,12 @@ def display_ticket_selection():
                     st.rerun()
     
     # Second row
-    col3, col4 = st.columns(2)
+    # col3, col4 = st.columns(2)
     with col3:
         if len(ticket_items) >= 3:
             ticket_key, ticket_info = ticket_items[2]
             st.markdown(f"**{ticket_info['name'].split('(')[0].strip()}**")
-            st.markdown(f"€{ticket_info['price']:.0f}")
+            st.markdown(f"CHF {ticket_info['price']:.0f}")
             
             current_qty = st.session_state.cart.get(ticket_key, 0)
             
@@ -275,7 +276,7 @@ def display_ticket_selection():
         if len(ticket_items) >= 4:
             ticket_key, ticket_info = ticket_items[3]
             st.markdown(f"**{ticket_info['name'].split('(')[0].strip()}**")
-            st.markdown(f"€{ticket_info['price']:.0f}")
+            st.markdown(f"CHF {ticket_info['price']:.0f}")
             
             current_qty = st.session_state.cart.get(ticket_key, 0)
             
@@ -306,7 +307,7 @@ def display_cart_summary():
         
         if summary_parts:
             st.markdown(f"**Items:** {' | '.join(summary_parts)}")
-            st.markdown(f"# **€{total:.0f}**")
+            st.markdown(f"# **CHF {total:.0f}**")
         
         return True
     else:
@@ -356,11 +357,11 @@ def display_final_confirmation():
             success = save_to_google_sheets(sheet, st.session_state.selected_event, st.session_state.cart, total, st.session_state.payment_method)
             if success:
                 st.balloons()
-                st.success(f"Sale completed! €{total:.0f} - Saved to Google Sheets")
+                st.success(f"Sale completed! CHF {total:.0f} - Saved to Google Sheets")
             else:
-                st.warning(f"Sale completed! €{total:.0f} - Google Sheets save failed")
+                st.warning(f"Sale completed! CHF {total:.0f} - Google Sheets save failed")
         else:
-            st.info(f"Sale completed! €{total:.0f} - Google Sheets not configured")
+            st.info(f"Sale completed! CHF {total:.0f} - Google Sheets not configured")
         
         # Auto-reset for next customer but keep event selected
         import time
@@ -390,7 +391,7 @@ def main():
         return
     
     # Header
-    st.title("🏆 Sports Club Ticket Sales")
+    st.title("🏆 TVD Chränzli Eintritte")
     st.markdown(f"📅 {datetime.now().strftime('%A, %B %d, %Y')}")
     
     # Logout button in sidebar
